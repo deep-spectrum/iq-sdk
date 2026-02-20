@@ -1,4 +1,4 @@
-site_name: IQ SDK
+site_name: I/Q SDK
 nav:
   - Home: index.md
   - Data Format: format.md
