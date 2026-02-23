@@ -98,7 +98,7 @@ This directory contains the following files:
 
 !!! note
 
-    If a diagnostic field is not present or does not have an entry, then the device does not have the necessary hardware
+    If a diagnostic field is not present or the entry is `null`, then the device does not have the necessary hardware
     for that diagnostic reading.
 
 !!! warning
