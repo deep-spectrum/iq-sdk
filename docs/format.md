@@ -89,6 +89,7 @@ This directory contains the following files:
 | `diagnostics.network_diagnostics.txPower`         | float  | Transmitted network power level (mW).                     |
 | `diagnostics.network_diagnostics.voltage`         | float  | Network component voltage (V).                            |
 | `diagnostics.save_duration`                       | float  | Time taken to save the capture (seconds).                 |
+| `diagnostics.capture_duration`                    | float  | The time taken to capture the data (seconds).             |
 | `parameters.bandwidth`                            | float  | Capture bandwidth in Hz.                                  |
 | `parameters.capture_duration`                     | float  | Duration of each capture in seconds.                      |
 | `parameters.center_frequency`                     | float  | Center frequency in Hz.                                   |
