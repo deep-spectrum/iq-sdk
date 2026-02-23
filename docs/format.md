@@ -60,12 +60,41 @@ This directory contains the following files:
 
 `meta.yaml` has the following fields:
 
-| Field | Type | Description |
-| --- | --- | --- |
-| `device` | string | The device used to record the trace (`SM200C`, `SM435C`). |
-| `captures` | int | The total number of captures recorded. |
-| `samples_per_capture` | int | The number of samples in each capture. |
-| `captures_per_chunk` | int | The number of captures in each chunk. |
+| Field                                             | Type   | Description                                               |
+|---------------------------------------------------|--------|-----------------------------------------------------------|
+| `captures`                                        | int    | The total number of captures recorded.                    |
+| `captures_per_chunk`                              | int    | The number of captures in each chunk.                     |
+| `device_configurations.decimation`                | int    | The downsampling factor.                                  |
+| `device_configurations.device`                    | string | The device used to record the trace (`SM200C`, `SM435C`). |
+| `device_configurations.device_addr`               | string | The IP address of the device.                             |
+| `device_configurations.gps_lock_timeout`          | int    | Timeout in seconds to wait for GPS lock.                  |
+| `device_configurations.gps_model`                 | string | The GPS mode (e.g., `STATIONARY`).                        |
+| `device_configurations.gps_timestamping`          | bool   | Whether GPS timestamping is enabled.                      |
+| `device_configurations.host`                      | string | Host address used for communication.                      |
+| `device_configurations.port`                      | int    | Network port used for communication.                      |
+| `device_configurations.serial`                    | int    | Device serial number (`-1` if not specified).             |
+| `device_configurations.software_filter`           | bool   | Whether software filtering is enabled.                    |
+| `diagnostics.api_version`                         | string | Version of the API used during capture.                   |
+| `diagnostics.device_diagnostics.currentInput`     | float  | Measured input current (A).                               |
+| `diagnostics.device_diagnostics.currentOCXO`      | float  | Measured OCXO current (A).                                |
+| `diagnostics.device_diagnostics.tempFPGAInternal` | float  | Internal FPGA temperature (°C).                           |
+| `diagnostics.device_diagnostics.tempFPGANear`     | float  | Temperature near FPGA (°C).                               |
+| `diagnostics.device_diagnostics.tempOCXO`         | float  | OCXO temperature (°C).                                    |
+| `diagnostics.device_diagnostics.tempPowerSupply`  | float  | Power supply temperature (°C).                            |
+| `diagnostics.device_diagnostics.tempRFBoardLO`    | float  | RF board LO temperature (°C).                             |
+| `diagnostics.device_diagnostics.tempVCO`          | float  | VCO temperature (°C).                                     |
+| `diagnostics.device_diagnostics.voltage`          | float  | Measured supply voltage (V).                              |
+| `diagnostics.network_diagnostics.rxPower`         | float  | Received network power level (mW).                        |
+| `diagnostics.network_diagnostics.temp`            | float  | Network component temperature (°C).                       |
+| `diagnostics.network_diagnostics.txPower`         | float  | Transmitted network power level (mW).                     |
+| `diagnostics.network_diagnostics.voltage`         | float  | Network component voltage (V).                            |
+| `diagnostics.save_duration`                       | float  | Time taken to save the capture (seconds).                 |
+| `parameters.bandwidth`                            | float  | Capture bandwidth in Hz.                                  |
+| `parameters.capture_duration`                     | float  | Duration of each capture in seconds.                      |
+| `parameters.center_frequency`                     | float  | Center frequency in Hz.                                   |
+| `parameters.stop_if_sample_loss`                  | bool   | Whether capture stops if sample loss is detected.         |
+| `sample_loss`                                     | bool   | Indicates if sample loss occurred during capture.         |
+| `samples_per_capture`                             | int    | The number of samples in each capture.                    |
 
 !!! warning
 
