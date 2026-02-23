@@ -96,6 +96,11 @@ This directory contains the following files:
 | `sample_loss`                                     | bool   | Indicates if sample loss occurred during capture.         |
 | `samples_per_capture`                             | int    | The number of samples in each capture.                    |
 
+!!! note
+
+    If a diagnostic field is not present or does not have an entry, then the device does not have the necessary hardware
+    for that diagnostic reading.
+
 !!! warning
 
     The format of `meta.yaml` is not finalized and subject to change.
