@@ -1,4 +1,7 @@
 site_name: I/Q SDK
+site_url: https://deep-spectrum.github.io/iq-sdk/
+repo_url: https://github.com/deep-spectrum/iq-sdk
+repo_name: deep-spectrum/iq-sdk
 nav:
   - Home: index.md
   - Data Format: format.md
