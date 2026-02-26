@@ -54,7 +54,7 @@ This directory contains the following files:
 
 | Filename | Type | Description |
 | --- | --- | --- |
-| `ts.f8` | `float64`, little-endian | Timestamps for each sample, in seconds (unix epoch time). |
+| `ts.f8` | `float64`, little-endian | Timestamps corresponding to the start of each capture, in seconds (unix epoch time). |
 | `iq(\d+).c8` | `complex64`, little-endian | Continuous time series of complex IQ samples. |
 | `meta.yaml` | yaml / ascii | Receiver metadata. |
 

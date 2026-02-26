@@ -2,6 +2,7 @@ site_name: I/Q SDK
 nav:
   - Home: index.md
   - Data Format: format.md
+  - API Reference: api.md
 
 extra_css:
   - stylesheets/extra.css
@@ -63,6 +64,7 @@ plugins:
         inventories:
         - https://docs.python.org/3/objects.inv
         - https://numpy.org/doc/stable/objects.inv
+        - https://radarml.github.io/abstract-dataloader/objects.inv
 
 markdown_extensions:
   - pymdownx.highlight:

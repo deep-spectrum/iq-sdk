@@ -25,7 +25,10 @@ classifiers = [
 ]
 
 dependencies = [
+    "abstract-dataloader>=0.1",
     "jaxtyping>=0.3.9",
+    "numpy>=1.14",
+    "pyyaml>=6.0",
     "wadler-lindig>=0.1.7",
 ]
 
