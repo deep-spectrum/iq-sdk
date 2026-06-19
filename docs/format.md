@@ -3,10 +3,12 @@
 ```
 unique_recording_name/
 ├── rx0/
+│   ├── gps.npz (optional)
 │   ├── iq00.c8
 │   ├── iq01.c8
 │   ├── ...
 │   ├── ts.f8
+│   ├── checksum.yaml
 │   └── meta.yaml
 ├── rx1/
 │   └── ...
@@ -56,6 +58,7 @@ This directory contains the following files:
 | --- | --- | --- |
 | `ts.f8` | `float64`, little-endian | Timestamps corresponding to the start of each capture, in seconds (unix epoch time). |
 | `iq(\d+).c8` | `complex64`, little-endian | Continuous time series of complex IQ samples. |
+| `checksum.yaml` | yaml/ascii | CHecksums for all the files in the directory |
 | `meta.yaml` | yaml / ascii | Receiver metadata. |
 
 `meta.yaml` has the following fields:
@@ -105,6 +108,33 @@ This directory contains the following files:
 !!! warning
 
     The format of `meta.yaml` is not finalized and subject to change.
+
+### Checksums
+
+Checksums for all the data and metadata files are provided in each receiver directory with the following format. The
+checksums are calculated with [xxh3_64](https://xxhash.com/) digests. The seed provided in the `checksum.yaml` file 
+is the seed used for calculating the [xxh3_64](https://xxhash.com/) digests.
+
+```
+gps.npz: aaabbbcccdddeeef
+iq0.c8: 1112223334445556
+iq1.c8: 0000000001111111
+...
+meta.yaml: 1234567890abcdef
+seed: '0'
+ts.f8: 1122334455667788
+```
+
+!!! note
+
+    [xxHash](https://xxhash.com/) is chosen for its speed and efficiency; since the purpose of these checksums is 
+    solely to detect data corruption during storage and transfer, cryptographic security is not required.
+
+!!! warning
+
+    If a digest shows as `null`, that means the file should not exist.
+
+Use `iq-sdk verify <trace>` to verify the generated checksums.
 
 ## Transmitter Data
 
