@@ -10,6 +10,7 @@ name = "iq-sdk"
 version = "0.1.0"
 authors = [
   { name="Tianshu Huang", email="tianshu2@andrew.cmu.edu" },
+  { name="Tom Schmitz", email="tschmitz@andrew.cmu.edu" },
 ]
 description = "TODO"
 readme = "README.md"
@@ -34,6 +35,9 @@ dependencies = [
     "wadler-lindig>=0.1.7",
     "xxhash>=3.7.0",
 ]
+
+[project.scripts]
+iq-sdk = "iq_sdk.cli.main:main"
 
 [project.urls]
 Homepage = "https://deep-spectrum.github.io/iq-sdk"
