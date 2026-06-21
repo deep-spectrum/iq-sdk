@@ -1,6 +1,7 @@
 """I/Q data dataloading."""
 
 import glob
+import os
 import re
 from typing import Generic
 
@@ -9,6 +10,18 @@ import yaml
 from abstract_dataloader import abstract
 from abstract_dataloader.ext.types import TArray, dataclass
 from jaxtyping import Complex64, Float64
+
+
+def _chunk_index(path: str) -> int:
+    """Numeric index of an ``iq{N}.c8`` chunk file, from its *basename*.
+
+    Keying the chunk sort on the index in the filename (not anywhere in the
+    full path) is essential: a digit elsewhere in the path -- e.g.
+    ``.../data0/run-6-18-26/rx1/iq3.c8`` -- must not influence the order.
+    Anchoring to the ``iq`` prefix also avoids matching the ``8`` in ``.c8``.
+    """
+    match = re.search(r"iq(\d+)", os.path.basename(path))
+    return int(match.group(1)) if match else -1
 
 
 @dataclass
@@ -87,10 +100,7 @@ class Receiver(abstract.Sensor[IQData, ReceiverMetadata]):
             interval_starts, capture_starts, capture_timestamps
         )
 
-        chunks = sorted(
-            glob.glob(f"{path}/iq*.c8"),
-            key=lambda p: int(re.findall(r"\d+", p)[0]),
-        )
+        chunks = sorted(glob.glob(f"{path}/iq*.c8"), key=_chunk_index)
 
         super().__init__(
             metadata=ReceiverMetadata(
