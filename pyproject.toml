@@ -37,7 +37,7 @@ dependencies = [
 ]
 
 [project.scripts]
-iq-sdk = "iq_sdk.cli.main:main"
+iq = "iq_sdk.cli.main:main"
 
 [project.urls]
 Homepage = "https://deep-spectrum.github.io/iq-sdk"
