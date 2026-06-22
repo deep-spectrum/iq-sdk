@@ -13,11 +13,13 @@ console = Console()
 
 @app.command
 def verify(trace: pathlib.Path, /,
+           fail_fast: Annotated[bool, tyro.conf.FlagCreatePairsOff, tyro.conf.arg(aliases=["-f"])] = False,
            verbose: Annotated[tyro.conf.UseCounterAction[int], tyro.conf.arg(aliases=["-v"])] = 0) -> None:
     """Verify the files in a capture run.
 
     Args:
         trace: Path to the trace directory to verify. Must contain a checksum.yaml file.
+        fail_fast: Terminate immediately if one of the files fail the checksum.
         verbose: Verbose mode
     """
 
@@ -54,11 +56,13 @@ def verify(trace: pathlib.Path, /,
             console.print(f"{file.name}: [green]OK[/green]")
         elif not ret:
             console.print(f"{file.name}: [red]Failed ({calculated} != {crc_})[/red]")
+            if fail_fast:
+                exit(1)
         return ret
 
     ok = True
     for file, crc in checksums.items():
-        ok = check_file(trace / file, crc)
+        ok = check_file(trace / file, crc) and ok
 
     if not ok:
         console.print("[red]One or more files in the trace has data integrity issues[/red]")
