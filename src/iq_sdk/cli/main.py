@@ -13,7 +13,7 @@ console = Console()
 
 @app.command
 def verify(trace: pathlib.Path, /,
-           fail_fast: Annotated[bool, tyro.conf.FlagCreatePairsOff, tyro.conf.arg(aliases=["-f"])] = False,
+           fail_fast: Annotated[bool, tyro.conf.FlagCreatePairsOff] = False,
            verbose: Annotated[tyro.conf.UseCounterAction[int], tyro.conf.arg(aliases=["-v"])] = 0) -> None:
     """Verify the files in a capture run.
 
