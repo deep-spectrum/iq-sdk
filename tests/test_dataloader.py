@@ -7,7 +7,6 @@ import pytest
 import yaml
 
 from iq_sdk import IQData, Receiver, ReceiverMetadata
-from iq_sdk.dataloader import _chunk_index
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -55,9 +54,7 @@ class TestReceiverMetadata:
 
     def test_chunks_sorted(self, rx_default: Receiver) -> None:
         """Chunk files must be in ascending numeric order."""
-        from iq_sdk.dataloader import _chunk_index
-
-        indices = [_chunk_index(c) for c in rx_default.metadata.chunks]
+        indices = [Receiver._chunk_index(c) for c in rx_default.metadata.chunks]
         assert indices == sorted(indices)
 
     def test_chunks_nonempty(self, rx_default: Receiver) -> None:
@@ -239,18 +236,25 @@ class TestChunkIndex:
     """The sort key must read the index from the *filename*, not the path."""
 
     def test_basic(self) -> None:
-        assert _chunk_index("/x/iq0.c8") == 0
-        assert _chunk_index("/x/iq7.c8") == 7
-        assert _chunk_index("/x/iq36.c8") == 36
+        assert Receiver._chunk_index("/x/iq0.c8") == 0
+        assert Receiver._chunk_index("/x/iq7.c8") == 7
+        assert Receiver._chunk_index("/x/iq36.c8") == 36
 
     def test_ignores_c8_extension_digit(self) -> None:
         # The ``8`` in ``.c8`` must not be picked up.
-        assert _chunk_index("iq0.c8") == 0
+        assert Receiver._chunk_index("iq0.c8") == 0
 
     def test_ignores_digits_elsewhere_in_path(self) -> None:
         # Digits in parent dirs must not influence the index (the original bug).
-        assert _chunk_index("/data0/run-6-18-26/2.45GHz/rx1/iq3.c8") == 3
-        assert _chunk_index("/data0/run-6-18-26/2.45GHz/rx1/iq12.c8") == 12
+        ix = Receiver._chunk_index
+        assert ix("/data0/run-6-18-26/2.45GHz/rx1/iq3.c8") == 3
+        assert ix("/data0/run-6-18-26/2.45GHz/rx1/iq12.c8") == 12
+
+    def test_rejects_malformed_name(self) -> None:
+        # A name that is not exactly iq<N>.c8 must raise, not silently sort.
+        for bad in ("iq.c8", "iqx.c8", "chunk0.c8", "iq0.bin", "iq0_extra.c8"):
+            with pytest.raises(ValueError, match="iq<N>.c8"):
+                Receiver._chunk_index(bad)
 
 
 class TestChunkOrdering:
@@ -266,7 +270,7 @@ class TestChunkOrdering:
         root = tmp_path / "data0" / "lab_mod_switching_3-6-18-26" / "noisy"
         rx = _write_synthetic(str(root), n_chunks=37, spc=256)
         meta = Receiver(rx, interval=256).metadata
-        indices = [_chunk_index(c) for c in meta.chunks]
+        indices = [Receiver._chunk_index(c) for c in meta.chunks]
         assert indices == list(range(37))
 
     def test_unpadded_names_not_string_sorted(self, tmp_path) -> None:
@@ -323,3 +327,17 @@ class TestChunkOrdering:
         assert last == f"iq{n_chunks - 1}.c8"
         got = np.concatenate([recv[i].iq[0] for i in range(len(recv))])
         np.testing.assert_array_equal(got, ramp.astype(np.complex64))
+
+    def test_duplicate_index_raises(self, tmp_path) -> None:
+        # iq0.c8 and iq00.c8 both resolve to index 0 -> ambiguous order.
+        rx = _write_synthetic(str(tmp_path / "dup"), n_chunks=3, spc=256)
+        np.zeros(256, dtype="<c8").tofile(os.path.join(rx, "iq00.c8"))
+        with pytest.raises(ValueError, match="Duplicate chunk indices"):
+            Receiver(rx, interval=256)
+
+    def test_malformed_chunk_name_raises(self, tmp_path) -> None:
+        # A stray iq*.c8 file that is not iq<N>.c8 must fail loudly.
+        rx = _write_synthetic(str(tmp_path / "bad"), n_chunks=3, spc=256)
+        np.zeros(256, dtype="<c8").tofile(os.path.join(rx, "iqbad.c8"))
+        with pytest.raises(ValueError, match="iq<N>.c8"):
+            Receiver(rx, interval=256)

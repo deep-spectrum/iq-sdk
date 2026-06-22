@@ -12,18 +12,6 @@ from abstract_dataloader.ext.types import TArray, dataclass
 from jaxtyping import Complex64, Float64
 
 
-def _chunk_index(path: str) -> int:
-    """Numeric index of an ``iq{N}.c8`` chunk file, from its *basename*.
-
-    Keying the chunk sort on the index in the filename (not anywhere in the
-    full path) is essential: a digit elsewhere in the path -- e.g.
-    ``.../data0/run-6-18-26/rx1/iq3.c8`` -- must not influence the order.
-    Anchoring to the ``iq`` prefix also avoids matching the ``8`` in ``.c8``.
-    """
-    match = re.search(r"iq(\d+)", os.path.basename(path))
-    return int(match.group(1)) if match else -1
-
-
 @dataclass
 class IQData(Generic[TArray]):
     """A batch of I/Q data samples.
@@ -68,6 +56,17 @@ class Receiver(abstract.Sensor[IQData, ReceiverMetadata]):
         name: Sensor name passed to the base class.
     """
 
+    @staticmethod
+    def _chunk_index(path: str) -> int:
+        # Numeric index of an `iq{N}.c8` chunk, from its basename. Keying on the
+        # filename (not the full path) is essential: a digit elsewhere in the
+        # path -- e.g. `.../data0/run-6-18-26/rx1/iq3.c8` -- must not affect the
+        # order. The `\.c8` anchor stops a stray index digit being mismatched.
+        match = re.fullmatch(r"iq(\d+)\.c8", os.path.basename(path))
+        if match is None:
+            raise ValueError(f"Chunk file is not named iq<N>.c8: {path}")
+        return int(match.group(1))
+
     def __init__(
         self,
         path: str,
@@ -100,7 +99,18 @@ class Receiver(abstract.Sensor[IQData, ReceiverMetadata]):
             interval_starts, capture_starts, capture_timestamps
         )
 
-        chunks = sorted(glob.glob(f"{path}/iq*.c8"), key=_chunk_index)
+        # Sort chunks by their numeric index, rejecting malformed names and
+        # duplicate indices (which would silently corrupt the read order).
+        indexed = sorted(
+            (self._chunk_index(p), p) for p in glob.glob(f"{path}/iq*.c8")
+        )
+        indices = [i for i, _ in indexed]
+        duplicates = sorted({i for i in indices if indices.count(i) > 1})
+        if duplicates:
+            raise ValueError(
+                f"Duplicate chunk indices {duplicates} among iq*.c8 in {path}"
+            )
+        chunks = [p for _, p in indexed]
 
         super().__init__(
             metadata=ReceiverMetadata(
