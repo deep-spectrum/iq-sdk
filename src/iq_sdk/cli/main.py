@@ -45,7 +45,7 @@ def verify(trace: pathlib.Path, /,
     def check_file(file_: pathlib.Path, crc_: str | None) -> bool:
         if not file_.exists():
             if crc is not None:
-                console.print(f"{file.name}: [red]Does not exist[/red]")
+                console.print(f"{file_.name}: [red]Does not exist[/red]")
                 return False
             return True
         with open(file_, "rb") as f:
@@ -53,9 +53,9 @@ def verify(trace: pathlib.Path, /,
         calculated = xxhash.xxh64(buffer, seed).hexdigest()
         ret = calculated == crc_
         if ret and verbose:
-            console.print(f"{file.name}: [green]OK[/green]")
+            console.print(f"{file_.name}: [green]OK[/green]")
         elif not ret:
-            console.print(f"{file.name}: [red]Failed ({calculated} != {crc_})[/red]")
+            console.print(f"{file_.name}: [red]Failed ({calculated} != {crc_})[/red]")
             if fail_fast:
                 exit(1)
         return ret
