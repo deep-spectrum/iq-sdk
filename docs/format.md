@@ -130,11 +130,7 @@ ts.f8: 1122334455667788
     [xxHash](https://xxhash.com/) is chosen for its speed and efficiency; since the purpose of these checksums is 
     solely to detect data corruption during storage and transfer, cryptographic security is not required.
 
-!!! warning
-
-    If a digest shows as `null`, that means the file should not exist.
-
-Use `iq-sdk verify <trace>` to verify the generated checksums.
+Use `iq verify <trace>` to verify the generated checksums.
 
 ## Transmitter Data
 
