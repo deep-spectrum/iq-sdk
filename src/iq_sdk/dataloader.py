@@ -110,6 +110,16 @@ class Receiver(abstract.Sensor[IQData, ReceiverMetadata]):
             raise ValueError(
                 f"Duplicate chunk indices {duplicates} among iq*.c8 in {path}"
             )
+        # chunks number sequentially from 0, so a gap means recording is
+        # incomplete or corrupt. A truncated prefix (0..k present, later
+        # chunks not yet written) stays contiguous and is allowed.
+        if indices:
+            missing = sorted(set(range(indices[-1] + 1)) - set(indices))
+            if missing:
+                raise ValueError(
+                    f"Missing chunk indices {missing} among iq*.c8 in {path}; "
+                    f"chunks must be numbered sequentially from 0"
+                )
         chunks = [p for _, p in indexed]
 
         super().__init__(

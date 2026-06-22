@@ -341,3 +341,26 @@ class TestChunkOrdering:
         np.zeros(256, dtype="<c8").tofile(os.path.join(rx, "iqbad.c8"))
         with pytest.raises(ValueError, match="iq<N>.c8"):
             Receiver(rx, interval=256)
+
+    def test_missing_chunk_raises(self, tmp_path) -> None:
+        # A gap in the sequence (iq2 removed) means an incomplete recording.
+        rx = _write_synthetic(str(tmp_path / "gap"), n_chunks=5, spc=256)
+        os.remove(os.path.join(rx, "iq2.c8"))
+        with pytest.raises(ValueError, match="Missing chunk indices"):
+            Receiver(rx, interval=256)
+
+    def test_missing_leading_chunk_raises(self, tmp_path) -> None:
+        # The sequence must start at 0; a missing iq0 is also a gap.
+        rx = _write_synthetic(str(tmp_path / "no0"), n_chunks=4, spc=256)
+        os.remove(os.path.join(rx, "iq0.c8"))
+        with pytest.raises(ValueError, match="Missing chunk indices"):
+            Receiver(rx, interval=256)
+
+    def test_truncated_prefix_is_allowed(self, tmp_path) -> None:
+        """Trailing chunks absent (0..k present) is partial copy, not a gap."""
+        rx = _write_synthetic(str(tmp_path / "trunc"), n_chunks=6, spc=256)
+        for c in (4, 5):  # drop the tail; 0..3 remain contiguous
+            os.remove(os.path.join(rx, f"iq{c}.c8"))
+        meta = Receiver(rx, interval=256).metadata
+        names = [os.path.basename(c) for c in meta.chunks]
+        assert names == [f"iq{i}.c8" for i in range(4)]
