@@ -11,23 +11,6 @@ app = SubcommandApp()
 console = Console()
 
 
-def check_file(file: pathlib.Path, crc: str | None, seed: int, verbose: bool) -> bool:
-    if not file.exists():
-        if crc is not None:
-            console.print(f"{file.name}: [red]Does not exist[/red]")
-            return False
-        return True
-    with open(file, "rb") as f:
-        buffer = f.read()
-    calculated = xxhash.xxh64(buffer, seed).hexdigest()
-    ret = calculated == crc
-    if ret and verbose:
-        console.print(f"{file.name}: [green]OK[/green]")
-    elif not ret:
-        console.print(f"{file.name}: [red]Failed ({calculated} != {crc})[/red]")
-    return ret
-
-
 @app.command
 def verify(trace: pathlib.Path, /,
            verbose: Annotated[tyro.conf.UseCounterAction[int], tyro.conf.arg(aliases=["-v"])] = 0) -> None:
@@ -57,9 +40,25 @@ def verify(trace: pathlib.Path, /,
     seed = int(checksums['seed'], 16)
     del checksums['seed']
 
+    def check_file(file_: pathlib.Path, crc_: str | None) -> bool:
+        if not file_.exists():
+            if crc is not None:
+                console.print(f"{file.name}: [red]Does not exist[/red]")
+                return False
+            return True
+        with open(file_, "rb") as f:
+            buffer = f.read()
+        calculated = xxhash.xxh64(buffer, seed).hexdigest()
+        ret = calculated == crc_
+        if ret and verbose:
+            console.print(f"{file.name}: [green]OK[/green]")
+        elif not ret:
+            console.print(f"{file.name}: [red]Failed ({calculated} != {crc_})[/red]")
+        return ret
+
     ok = True
     for file, crc in checksums.items():
-        ok = check_file(trace / file, crc, seed, verbose)
+        ok = check_file(trace / file, crc)
 
     if not ok:
         console.print("[red]One or more files in the trace has data integrity issues[/red]")
