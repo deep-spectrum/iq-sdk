@@ -3,10 +3,12 @@
 ```
 unique_recording_name/
 ├── rx0/
+│   ├── gps.npz (optional)
 │   ├── iq00.c8
 │   ├── iq01.c8
 │   ├── ...
 │   ├── ts.f8
+│   ├── checksum.yaml
 │   └── meta.yaml
 ├── rx1/
 │   └── ...
@@ -52,11 +54,12 @@ Data is stored in chunks (named `iq0.c8`, `iq1.c8`, `iq2.c8`, ...), each of whic
 
 This directory contains the following files:
 
-| Filename | Type | Description |
-| --- | --- | --- |
-| `ts.f8` | `float64`, little-endian | Timestamps corresponding to the start of each capture, in seconds (unix epoch time). |
-| `iq(\d+).c8` | `complex64`, little-endian | Continuous time series of complex IQ samples. |
-| `meta.yaml` | yaml / ascii | Receiver metadata. |
+| Filename        | Type                       | Description                                                                          |
+|-----------------|----------------------------|--------------------------------------------------------------------------------------|
+| `ts.f8`         | `float64`, little-endian   | Timestamps corresponding to the start of each capture, in seconds (unix epoch time). |
+| `iq(\d+).c8`    | `complex64`, little-endian | Continuous time series of complex IQ samples.                                        |
+| `checksum.yaml` | yaml/ascii                 | Checksums for all the files in the directory                                         |
+| `meta.yaml`     | yaml / ascii               | Receiver metadata.                                                                   |
 
 `meta.yaml` has the following fields:
 
@@ -106,6 +109,29 @@ This directory contains the following files:
 
     The format of `meta.yaml` is not finalized and subject to change.
 
+### Checksums
+
+Checksums for all the data and metadata files are provided in each receiver directory with the following format. The
+checksums are calculated with [xxh3_64](https://xxhash.com/) digests. The seed provided in the `checksum.yaml` file 
+is the seed used for calculating the [xxh3_64](https://xxhash.com/) digests.
+
+```
+gps.npz: aaabbbcccdddeeef
+iq0.c8: 1112223334445556
+iq1.c8: 0000000001111111
+...
+meta.yaml: 1234567890abcdef
+seed: '0'
+ts.f8: 1122334455667788
+```
+
+!!! note
+
+    [xxHash](https://xxhash.com/) is chosen for its speed and efficiency; since the purpose of these checksums is 
+    solely to detect data corruption during storage and transfer, cryptographic security is not required.
+
+Use `iq verify <trace>` to verify the generated checksums.
+
 ## Transmitter Data
 
 Data from each transmitter is stored in a folder with a unique name starting with `tx`. This name also acts as the transmitter ID.
@@ -120,17 +146,17 @@ The following file types may also be present:
 
 - Structured metadata:
 
-    | Filename | Type | Description |
-    | --- | --- | --- |
-    | `ts.f8` | `float64`, little-endian | Timestamps for each metadata entry, in seconds (unix epoch time). |
-    | `{name}.{type}` | binary, little-endian | Structured metadata fields. |
+    | Filename        | Type                     | Description                                                       |
+    |-----------------|--------------------------|-------------------------------------------------------------------|
+    | `ts.f8`         | `float64`, little-endian | Timestamps for each metadata entry, in seconds (unix epoch time). |
+    | `{name}.{type}` | binary, little-endian    | Structured metadata fields.                                       |
 
 - GNU radio data:
 
-    | Filename | Type | Description |
-    | --- | --- | --- |
+    | Filename            | Type         | Description                        |
+    |---------------------|--------------|------------------------------------|
     | `signal.sigmf-meta` | json / ascii | GNU radio metadata for the signal. |
-    | `signal.sigmf-data` | binary | GNU radio data for the signal. |
+    | `signal.sigmf-data` | binary       | GNU radio data for the signal.     |
 
     !!! tip
 
