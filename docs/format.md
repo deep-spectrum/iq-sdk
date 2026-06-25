@@ -54,12 +54,12 @@ Data is stored in chunks (named `iq0.c8`, `iq1.c8`, `iq2.c8`, ...), each of whic
 
 This directory contains the following files:
 
-| Filename | Type | Description |
-| --- | --- | --- |
-| `ts.f8` | `float64`, little-endian | Timestamps corresponding to the start of each capture, in seconds (unix epoch time). |
-| `iq(\d+).c8` | `complex64`, little-endian | Continuous time series of complex IQ samples. |
-| `checksum.yaml` | yaml/ascii | CHecksums for all the files in the directory |
-| `meta.yaml` | yaml / ascii | Receiver metadata. |
+| Filename        | Type                       | Description                                                                          |
+|-----------------|----------------------------|--------------------------------------------------------------------------------------|
+| `ts.f8`         | `float64`, little-endian   | Timestamps corresponding to the start of each capture, in seconds (unix epoch time). |
+| `iq(\d+).c8`    | `complex64`, little-endian | Continuous time series of complex IQ samples.                                        |
+| `checksum.yaml` | yaml/ascii                 | Checksums for all the files in the directory                                         |
+| `meta.yaml`     | yaml / ascii               | Receiver metadata.                                                                   |
 
 `meta.yaml` has the following fields:
 
@@ -146,17 +146,17 @@ The following file types may also be present:
 
 - Structured metadata:
 
-    | Filename | Type | Description |
-    | --- | --- | --- |
-    | `ts.f8` | `float64`, little-endian | Timestamps for each metadata entry, in seconds (unix epoch time). |
-    | `{name}.{type}` | binary, little-endian | Structured metadata fields. |
+    | Filename        | Type                     | Description                                                       |
+    |-----------------|--------------------------|-------------------------------------------------------------------|
+    | `ts.f8`         | `float64`, little-endian | Timestamps for each metadata entry, in seconds (unix epoch time). |
+    | `{name}.{type}` | binary, little-endian    | Structured metadata fields.                                       |
 
 - GNU radio data:
 
-    | Filename | Type | Description |
-    | --- | --- | --- |
+    | Filename            | Type         | Description                        |
+    |---------------------|--------------|------------------------------------|
     | `signal.sigmf-meta` | json / ascii | GNU radio metadata for the signal. |
-    | `signal.sigmf-data` | binary | GNU radio data for the signal. |
+    | `signal.sigmf-data` | binary       | GNU radio data for the signal.     |
 
     !!! tip
 
